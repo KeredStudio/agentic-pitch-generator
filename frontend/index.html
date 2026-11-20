@@ -83,9 +83,19 @@
     </div>
   </nav>
 
+  <!-- 手機專屬頁籤切換器 (Mobile Switcher Tabs) -->
+  <div class="mobile-tab-bar" role="tablist" aria-label="手機檢視頁籤切換">
+    <button id="tab-btn-input" class="mobile-tab active" role="tab" aria-selected="true" aria-controls="panel-input">
+      📝 1. 提案設定與控制
+    </button>
+    <button id="tab-btn-output" class="mobile-tab" role="tab" aria-selected="false" aria-controls="panel-output">
+      🚀 2. 成果與代理人鏈路
+    </button>
+  </div>
+
   <main class="app-layout">
     <!-- 左側面板：輸入與控制 -->
-    <section class="panel panel-input" aria-labelledby="heading-brief">
+    <section id="panel-input" class="panel panel-input" aria-labelledby="heading-brief">
       <div class="panel-section-title">
         <span class="section-num">1</span>
         <div>
@@ -156,7 +166,7 @@
     </section>
 
     <!-- 右側面板：生成產出與監控 -->
-    <section class="panel panel-output" aria-labelledby="heading-output">
+    <section id="panel-output" class="panel panel-output" aria-labelledby="heading-output">
       <div class="panel-header">
         <div class="panel-section-title">
           <span class="section-num">2</span>

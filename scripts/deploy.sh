@@ -112,6 +112,8 @@ deploy_cloud_run_service() {
       --service-name "${service_name}" \
       --project "${GOOGLE_CLOUD_PROJECT}" \
       --region "${GOOGLE_CLOUD_REGION}" \
+      --memory 2Gi \
+      --max-instances 5 \
       --no-confirm-project \
       --update-env-vars "${env_vars}"
     if command -v gcloud >/dev/null 2>&1; then
@@ -127,6 +129,8 @@ deploy_cloud_run_service() {
       --source "${APP_ROOT}" \
       --project "${GOOGLE_CLOUD_PROJECT}" \
       --region "${GOOGLE_CLOUD_REGION}" \
+      --memory 2Gi \
+      --max-instances 5 \
       --set-env-vars "${env_vars}" \
       --allow-unauthenticated \
       --quiet

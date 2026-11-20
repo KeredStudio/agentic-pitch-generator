@@ -769,6 +769,71 @@ function initPitchGeneratorApp() {
       }
     });
   });
+
+  // 手機版分頁切換邏輯 (Mobile Tabs Switcher)
+  const tabInput = document.getElementById("tab-btn-input");
+  const tabOutput = document.getElementById("tab-btn-output");
+  const panelInput = document.getElementById("panel-input");
+  const panelOutput = document.getElementById("panel-output");
+
+  function switchMobileTab(target) {
+    if (!tabInput || !tabOutput || !panelInput || !panelOutput) return;
+    if (window.innerWidth > 768) {
+      panelInput.classList.remove("mobile-hidden");
+      panelOutput.classList.remove("mobile-hidden");
+      return;
+    }
+    if (target === "input") {
+      tabInput.classList.add("active");
+      tabInput.setAttribute("aria-selected", "true");
+      tabOutput.classList.remove("active");
+      tabOutput.setAttribute("aria-selected", "false");
+      panelInput.classList.remove("mobile-hidden");
+      panelOutput.classList.add("mobile-hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      tabOutput.classList.add("active");
+      tabOutput.setAttribute("aria-selected", "true");
+      tabInput.classList.remove("active");
+      tabInput.setAttribute("aria-selected", "false");
+      panelOutput.classList.remove("mobile-hidden");
+      panelInput.classList.add("mobile-hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  if (tabInput && tabOutput) {
+    tabInput.addEventListener("click", () => switchMobileTab("input"));
+    tabOutput.addEventListener("click", () => switchMobileTab("output"));
+  }
+
+  // 當使用者在手機上送出提案或遇到審核時，自動切換至「成果與代理人鏈路」
+  if (form) {
+    form.addEventListener("submit", () => {
+      if (window.innerWidth <= 768) {
+        setTimeout(() => switchMobileTab("output"), 300);
+      }
+    });
+  }
+
+  // 視窗縮放時自動復原桌面排版
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) {
+      if (panelInput) panelInput.classList.remove("mobile-hidden");
+      if (panelOutput) panelOutput.classList.remove("mobile-hidden");
+    } else {
+      if (tabInput && tabInput.classList.contains("active")) {
+        switchMobileTab("input");
+      } else {
+        switchMobileTab("output");
+      }
+    }
+  });
+
+  // 初始化手機預設檢視（小螢幕預設顯示輸入設定）
+  if (window.innerWidth <= 768) {
+    switchMobileTab("input");
+  }
 }
 
 if (typeof document !== "undefined") {
