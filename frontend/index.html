@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<!--
+/**
+ * @file index.html
+ * @description Plain HTML5 interface for the Agentic Pitch Generator starter application.
+ *
+ * Why:
+ * 1. Eliminates external bundler and transpiler complexity inside the Antigravity 2.0 VM
+ *    so learners can focus strictly on multi-agent orchestration, skills, observability,
+ *    security, and context engineering.
+ * 2. Provides a clean UI for the 4-specialist workflow (`creative_director`, `brand_strategist`,
+ *    `copywriter`, and `visual_director`) running on Gemini Enterprise Agent Platform
+ *    (`gemini-3.8-flash` and `gemini-nano-banana-2.1`), with the Human-in-the-Loop (HITL)
+ *    approval card hidden in the starter app until Step 3c is implemented.
+ * 3. Guarantees accessible semantic landmarks, explicit form labels, and ARIA live regions.
+ */
+-->
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>Agentic Pitch Generator — 智慧多代理人提案生成平台</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <!-- 頂部導航列 -->
+  <header class="app-header">
+    <div class="header-titles">
+      <div class="header-brand">
+        <span class="brand-icon">🚀</span>
+        <h1>Agentic Pitch Generator</h1>
+      </div>
+      <p class="subtitle">企業級多代理人協作平台 (Google Gemini Enterprise Agent Platform)</p>
+    </div>
+    <div class="header-badges" aria-label="Service status indicators">
+      <span id="health-badge" class="badge badge-neutral" role="status" aria-live="polite">連線狀態檢測中...</span>
+      <!-- [Guidepost — Step 1c: Enable the Visual Director A2A Agent Card Button] -->
+      <button id="btn-inspect-a2a" type="button" class="btn btn-secondary">🔍 檢視 A2A 代理人通訊名片 (Agent Card)</button>
+    </div>
+  </header>
+
+  <!-- 代理人協同流程引導視覺條 (Workflow Roadmap) -->
+  <nav class="workflow-roadmap" aria-label="代理人協作流程階段">
+    <div class="roadmap-step step-1">
+      <span class="step-badge">階段 1</span>
+      <span class="step-icon">💡</span>
+      <div class="step-info">
+        <strong>創意總監</strong>
+        <small>發想核心標語與策略論述</small>
+      </div>
+    </div>
+    <span class="roadmap-arrow">&rarr;</span>
+    <div class="roadmap-step step-hitl">
+      <span class="step-badge">人機協同 (HITL)</span>
+      <span class="step-icon">🛡️</span>
+      <div class="step-info">
+        <strong>人工審批閘門</strong>
+        <small>審查概念通過後才啟動下游</small>
+      </div>
+    </div>
+    <span class="roadmap-arrow">&rarr;</span>
+    <div class="roadmap-step step-2">
+      <span class="step-badge">階段 2 (平行分流)</span>
+      <span class="step-icon">✍️ 🎯 🎨</span>
+      <div class="step-info">
+        <strong>文案 + 策略 + 視覺總監 (A2A)</strong>
+        <small>社群貼文 / 品牌定位 / 生成視覺圖</small>
+      </div>
+    </div>
+    <span class="roadmap-arrow">&rarr;</span>
+    <div class="roadmap-step step-3">
+      <span class="step-badge">階段 3</span>
+      <span class="step-icon">📦</span>
+      <div class="step-info">
+        <strong>組裝與封裝</strong>
+        <small>產出完整提案與遙測日誌</small>
+      </div>
+    </div>
+  </nav>
+
+  <main class="app-layout">
+    <!-- 左側面板：輸入與控制 -->
+    <section class="panel panel-input" aria-labelledby="heading-brief">
+      <div class="panel-section-title">
+        <span class="section-num">1</span>
+        <div>
+          <h2 id="heading-brief">提案需求設定 (Campaign Brief)</h2>
+          <p class="section-subtext">請提供行銷產品或活動構想，四大專業代理人將自動協同生成提案</p>
+        </div>
+      </div>
+
+      <p id="config-summary" class="config-summary">正在載入系統運行配置...</p>
+      <div id="status-banner" class="status-banner" role="alert" aria-live="assertive" hidden></div>
+
+      <form id="pitch-form" novalidate>
+        <div class="form-group">
+          <label for="brief-input">
+            產品或活動主題簡報 (Brief)
+            <span class="label-desc">說明你想行銷的產品、客群或特色</span>
+          </label>
+          <textarea id="brief-input" name="brief" rows="4" required
+            placeholder="範例：專為多雨城市設計的防雨通勤單車，或是利用海洋回收塑膠製作的環保運動鞋">專為多雨城市設計的通勤自行車</textarea>
+          
+          <!-- 快捷範例按鈕 -->
+          <div class="quick-presets">
+            <span class="preset-title">💡 快速帶入靈感：</span>
+            <button type="button" class="btn-preset" data-text="專為多雨城市設計的防雨通勤單車">🌧️ 雨都通勤車</button>
+            <button type="button" class="btn-preset" data-text="利用海洋回收塑膠製作的高質感環保運動鞋">🌊 海洋環保跑鞋</button>
+            <button type="button" class="btn-preset" data-text="貓咪專屬的飛行滑板 (Flying skateboards for cats)">🛹 貓咪飛行滑板</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="session-id-input">
+              對話記憶代碼 (Session ID)
+              <span class="label-desc">用於維持 Memory Bank 記憶狀態</span>
+            </label>
+            <input id="session-id-input" name="session_id" type="text" value="default" required />
+          </div>
+        </div>
+
+        <!-- [Guidepost — Step 3c: Enable the Human-in-the-Loop Verification Checkbox] -->
+        <div id="hitl-checkbox-group" class="form-group form-group-checkbox hitl-toggle-box">
+          <label class="checkbox-label" for="require-approval-checkbox">
+            <input id="require-approval-checkbox" name="require_approval" type="checkbox" checked />
+            <div class="checkbox-text">
+              <strong>啟用「人工介入審批 (HITL)」閘門 (Step 3c)</strong>
+              <span>創意總監產生概念後將暫停等待您的批准，避免不符需求時浪費下游 Token 成本。</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button id="btn-generate-pitch" type="submit" class="btn btn-primary">
+            <span>✨ 啟動多代理人生成提案</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- 說明卡片：系統四位專家代理人介紹 -->
+      <div class="specialist-guide-box">
+        <h3>🤖 本系統自動協作的 4 位專業 AI 代理人</h3>
+        <ul class="specialist-list">
+          <li><strong>創意總監 (Creative Director)</strong>：提煉高穿透力核心標語與設計理念論述。</li>
+          <li><strong>社群文案師 (Copywriter)</strong>：撰寫符合 25 字上限規範的高轉換率社群貼文。</li>
+          <li><strong>品牌策略師 (Brand Strategist)</strong>：鎖定目標客群定位與市場差異化價值。</li>
+          <li><strong>遠端視覺總監 (Remote Visual Director)</strong>：經由 A2A 跨服務協議與 Imagen 生成主視覺圖。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 右側面板：生成產出與監控 -->
+    <section class="panel panel-output" aria-labelledby="heading-output">
+      <div class="panel-header">
+        <div class="panel-section-title">
+          <span class="section-num">2</span>
+          <div>
+            <h2 id="heading-output">代理人協作提案結果 (Pitch Package)</h2>
+            <p class="section-subtext">實時查看各階段代理人交付的策略、文案與視覺資產</p>
+          </div>
+        </div>
+        <span id="pitch-status" class="badge badge-neutral" role="status" aria-live="polite">尚未啟動</span>
+      </div>
+
+      <!-- [Guidepost — Step 3c: Enable the Human-in-the-Loop Approval Gate Card] -->
+      <div id="hitl-approval-card" class="hitl-panel" role="region" aria-labelledby="heading-hitl">
+        <div class="hitl-header">
+          <span class="hitl-icon">🛡️</span>
+          <div>
+            <h3 id="heading-hitl">Human-in-the-Loop 人工審核卡點 (<code>approve_concept</code>)</h3>
+            <p class="hitl-desc">系統已完成初步概念設計，目前下游代理人已安全掛起暫停，等待您的審查決策。</p>
+          </div>
+        </div>
+        <div class="hitl-body">
+          <p id="hitl-approval-prompt" class="pitch-content">
+            請審閱下方「創意總監核心概念」，滿意請點選「通過審核」，不滿意可「退件駁回」。
+          </p>
+          <div class="form-actions hitl-actions">
+            <button id="btn-approve-concept" type="button" class="btn btn-success" disabled>
+              ✅ 同意此概念並繼續生成下游 (Approve)
+            </button>
+            <button id="btn-reject-concept" type="button" class="btn btn-danger" disabled>
+              ❌ 駁回此概念並中止流程 (Reject)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 核心成果展示卡片網格 -->
+      <div id="pitch-result-card" class="pitch-grid">
+        <!-- 創意總監概念 -->
+        <article class="pitch-card pitch-card-primary">
+          <div class="pitch-card-header">
+            <span class="role-badge">💡 創意總監 (Creative Director)</span>
+            <h3>品牌核心概念與標語</h3>
+          </div>
+          <div id="pitch-concept" class="pitch-content">請在左側輸入簡報並點擊「啟動多代理人生成提案」。</div>
+        </article>
+
+        <!-- 社群文案 -->
+        <article class="pitch-card">
+          <div class="pitch-card-header">
+            <span class="role-badge">✍️ 社群文案師 (Copywriter)</span>
+            <h3>社群宣傳文案 (Social Copy)</h3>
+          </div>
+          <div id="pitch-copy" class="pitch-content">等待工作流程執行中...</div>
+        </article>
+
+        <!-- 品牌定位策略 -->
+        <article id="brand-strategy-card" class="pitch-card">
+          <div class="pitch-card-header">
+            <span class="role-badge">🎯 品牌策略師 (Brand Strategist)</span>
+            <h3>市場定位與受眾策略</h3>
+          </div>
+          <div id="pitch-brand-strategy" class="pitch-content">等待工作流程執行中...</div>
+        </article>
+
+        <!-- 視覺藝術指導 -->
+        <article id="art-direction-card" class="pitch-card">
+          <div class="pitch-card-header">
+            <span class="role-badge">🎨 視覺總監 (Visual Director - A2A)</span>
+            <h3>藝術指導指南 (Art Direction)</h3>
+          </div>
+          <div id="pitch-art-direction" class="pitch-content">等待工作流程執行中...</div>
+        </article>
+
+        <!-- 最終主視覺圖 -->
+        <article id="key-visual-card" class="pitch-card pitch-card-visual">
+          <div class="pitch-card-header">
+            <span class="role-badge">🖼️ 影像生成 (Imagen via A2A)</span>
+            <h3>品牌主視覺影像 (Key Visual)</h3>
+          </div>
+          <img id="pitch-key-visual-img" class="pitch-key-visual-img" alt="生成之品牌主視覺影像"
+            src="placeholder.png" hidden />
+          <p id="pitch-key-visual" class="pitch-content">等待生成主視覺影像...</p>
+        </article>
+      </div>
+
+      <!-- 代理人執行追蹤 (Trace) -->
+      <section class="subpanel" aria-labelledby="heading-trace">
+        <h3 id="heading-trace">📊 代理人即時執行鏈路 (Workflow Trace)</h3>
+        <ol id="workflow-trace-list" class="trace-list">
+          <li>系統就緒：待命執行多代理人協作流程 (`creative_director` &rarr; `approve_concept` &rarr; `user_approval` &rarr; `copywriter` + `brand_strategist` + `visual_director` &rarr; `assemble` &rarr; `package`)。</li>
+        </ol>
+      </section>
+
+      <!-- A2A 跨代理人通訊監控器 -->
+      <section id="a2a-flow-section" class="subpanel" aria-labelledby="heading-a2a-flow">
+        <h3 id="heading-a2a-flow">🔗 Agent-to-Agent (A2A) 跨代理人通訊狀態監測</h3>
+        <p id="a2a-flow-summary" class="pitch-content a2a-monitor-box">
+          [A2A 跨代理人通訊狀態]：待命中 — 等待主工作流向遠端 Visual Director 微服務 (Port 8801) 發送藝術指導委派。
+        </p>
+      </section>
+
+      <!-- A2A Agent Card 檢視區 -->
+      <section id="a2a-card-section" class="subpanel" aria-labelledby="heading-a2a" hidden>
+        <h3 id="heading-a2a">📄 遠端 Visual Director 的 A2A Agent Card 名片元數據 (<code>/.well-known/agent-card.json</code>)</h3>
+        <pre id="a2a-card-panel" class="code-box"></pre>
+      </section>
+    </section>
+  </main>
+</body>
+
+</html>
